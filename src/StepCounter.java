@@ -1,9 +1,12 @@
 
 public class StepCounter {
-	
+
 	private static int countSteps(double[] times, double[][] sensorData) {
 		double[][] accelData = CSVData.getColumns(sensorData, 0, 3);
+
 		double[][] gyroData = CSVData.getColumns(sensorData, 3, 6);
+
+		System.out.println();
 		double[] accelMags = calculateMagnitudesFor(accelData);
 		double[] gyroMags = calculateMagnitudesFor(gyroData);
 		double accelMagMean = calculateMean(accelMags);
@@ -18,14 +21,14 @@ public class StepCounter {
 
 			}
 		}
-		// for(int i=1;i<gyroMags.length-1;i++){
-		// if(gyroMags[i]>gyroMags[i-1]&&gyroMags[i]>gyroMags[i+1]){
-		// if(gyroMags[i]>gyroMagMean+gyroStanDev)stepCounter++;
-		//
-		// }
-		// }
-		return (stepCounter);
+		for (int i = 1; i < gyroMags.length - 1; i++) {
+			if (gyroMags[i] > gyroMags[i - 1] && gyroMags[i] > gyroMags[i + 1]) {
+				if (gyroMags[i] > gyroMagMean + gyroStanDev)
+					stepCounter++;
 
+			}
+		}
+		return (stepCounter /= 2);
 	}
 
 	private static Object accelMags(int i) {
