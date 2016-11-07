@@ -1,7 +1,7 @@
 
 public class StepCounter {
 
-	private static int countSteps(double[] times, double[][] sensorData) {
+	public static int countSteps(double[] times, double[][] sensorData) {
 		double[][] accelData = CSVData.getColumns(sensorData, 0, 3);
 
 		double[][] gyroData = CSVData.getColumns(sensorData, 3, 6);
