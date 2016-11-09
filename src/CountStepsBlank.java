@@ -21,9 +21,7 @@ public class CountStepsBlank {
 	 * 
 	 * @return an int representing the number of steps
 	 */
-	public static int countSteps(double[] times, double[][] sensorData) {
-		double[][] accelData = CSVData.getColumns(sensorData, 1, 4);
-
+	public static int countSteps(double[] times, double[][] accelData) {
 		double[] accelMags = calculateMagnitudesFor(accelData);
 
 		double accelMagMean = calculateMean(accelMags);
@@ -116,14 +114,14 @@ public class CountStepsBlank {
 	}
 
 	// peak must dip certain amount
-	public static int countStepsImproved1(double[] times, double[][] sensorData) {
-		double[][] accelData = CSVData.getColumns(sensorData, 1, 4);
-
+	public static int countStepsImproved1(double[] times, double[][] accelData) {
 		double[] accelMags = calculateMagnitudesFor(accelData);
 
 		double accelMagMean = calculateMean(accelMags);
 
 		double accelStanDev = calculateStandardDeviation(accelMags, accelMagMean);
+		
+		double coefficient = 0.8;
 
 		int stepCounter = 0;
 		boolean belowLowerThresh = false;
@@ -133,9 +131,8 @@ public class CountStepsBlank {
 				belowLowerThresh = false;
 				if (accelMags[i] > currentHighestPeak )
 					currentHighestPeak = accelMags[i];
-					//System.out.println("currentHighestPeak is: " + currentHighestPeak);
 			}
-			if (accelMags[i] < (0.80*currentHighestPeak)) {
+			if (accelMags[i] < (coefficient*currentHighestPeak)) {
 				belowLowerThresh = true;
 			}
 			if (belowLowerThresh) {
@@ -149,9 +146,7 @@ public class CountStepsBlank {
 	}
 
 	// calculate magnitude difference bw peaks and troughs
-	public static int countStepsImproved2(double[] times, double[][] sensorData) {
-		double[][] accelData = CSVData.getColumns(sensorData, 1, 4);
-
+	public static int countStepsImproved2(double[] times, double[][] accelData) {
 		double[] accelMags = calculateMagnitudesFor(accelData);
 
 		double accelMagMean = calculateMean(accelMags);
@@ -169,21 +164,19 @@ public class CountStepsBlank {
 			if (accelMags[i] < accelMags[i + 1] && accelMags[i] < accelMags[i - 1]) {
 				currentMinTrough = accelMags[i];
 			}
-			if ((currentMaxPeak - currentMinTrough) > 18.5) {
+			if ((currentMaxPeak - currentMinTrough) > accelMagMean + accelStanDev) {
 				stepCounter++;
-				System.out.println("difference is: " + (currentMaxPeak - currentMinTrough));
 			}
 		}
 		return stepCounter;
 	}
 
 	// adaptive threshold
-	public static int countStepsImproved4(double[] times, double[][] sensorData) {
-		double[][] accelData = CSVData.getColumns(sensorData, 0, 3);
+	public static int countStepsImproved3(double[] times, double[][] sensorData) {
+		double[][] accelData = CSVData.getColumns(sensorData, 3, 6);
 
-		double[][] gyroData = CSVData.getColumns(sensorData, 3, 6);
+		double[][] gyroData = CSVData.getColumns(sensorData, 7, 10);
 
-		System.out.println();
 		double[] accelMags = calculateMagnitudesFor(accelData);
 		double[] gyroMags = calculateMagnitudesFor(gyroData);
 
@@ -193,8 +186,8 @@ public class CountStepsBlank {
 		int stepCounter = 0;
 
 		for (int i = 1; i < accelMags.length - 1; i++) {
-			int start = i - 15;
-			int end = i + 15;
+			int start = i - 100;
+			int end = i + 100;
 			if (start < 0)
 				start = 0;
 			if (end > accelMags.length)
@@ -211,11 +204,12 @@ public class CountStepsBlank {
 			if (accelMags[i] > accelMags[i - 1] && accelMags[i] > accelMags[i + 1]) {
 				if (accelMags[i] > accelMagMean + accelStanDev * 0.50)
 					stepCounter++;
-				i += 2;
+				i += 15;
 			}
 		}
 		return (stepCounter);
 	}
+	
 
 	public static void displayJFrame(Plot2DPanel plot) {
 		JFrame frame = new JFrame("Results");
