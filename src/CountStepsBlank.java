@@ -120,7 +120,7 @@ public class CountStepsBlank {
 		double accelMagMean = calculateMean(accelMags);
 
 		double accelStanDev = calculateStandardDeviation(accelMags, accelMagMean);
-		
+
 		double coefficient = 0.8;
 
 		int stepCounter = 0;
@@ -129,10 +129,10 @@ public class CountStepsBlank {
 		for (int i = 1; i < accelMags.length - 1; i++) {
 			if (accelMags[i] > accelMagMean + accelStanDev) {
 				belowLowerThresh = false;
-				if (accelMags[i] > currentHighestPeak )
+				if (accelMags[i] > currentHighestPeak)
 					currentHighestPeak = accelMags[i];
 			}
-			if (accelMags[i] < (coefficient*currentHighestPeak)) {
+			if (accelMags[i] < (coefficient * currentHighestPeak)) {
 				belowLowerThresh = true;
 			}
 			if (belowLowerThresh) {
@@ -173,43 +173,41 @@ public class CountStepsBlank {
 
 	// adaptive threshold
 	public static int countStepsImproved3(double[] times, double[][] sensorData) {
-		double[][] accelData = CSVData.getColumns(sensorData, 3, 6);
+		double[] accelMags = calculateMagnitudesFor(sensorData);
 
-		double[][] gyroData = CSVData.getColumns(sensorData, 7, 10);
-
-		double[] accelMags = calculateMagnitudesFor(accelData);
-		double[] gyroMags = calculateMagnitudesFor(gyroData);
-
-		double gyroMagMean = calculateMean(gyroMags);
-
-		double gyroStanDev = calculateStandardDeviation(gyroMags, gyroMagMean);
 		int stepCounter = 0;
-
+		double[] accelMagsSmooth = new double[accelMags.length / 3];
 		for (int i = 1; i < accelMags.length - 1; i++) {
-			int start = i - 100;
-			int end = i + 100;
+
+			int start = i - 1000;
+			int end = i + 1000;
 			if (start < 0)
 				start = 0;
 			if (end > accelMags.length)
 				end = accelMags.length;
 			double[] accelMagsWindow = new double[(end - start)];
-
 			for (int i1 = start; i1 < end; i1++) {
 				accelMagsWindow[i1 - start] = accelMags[i1];
 			}
-
 			double accelMagMean = calculateMean(accelMagsWindow);
 			double accelStanDev = calculateStandardDeviation(accelMagsWindow, accelMagMean);
 
 			if (accelMags[i] > accelMags[i - 1] && accelMags[i] > accelMags[i + 1]) {
-				if (accelMags[i] > accelMagMean + accelStanDev * 0.50)
+				if (accelMags[i] > accelMagMean + accelStanDev * 0.4)
+
 					stepCounter++;
-				i += 15;
+				i += 25;
+
 			}
 		}
+		// for(int i=1;i<gyroMags.length-1;i++){
+		// if(gyroMags[i]>gyroMags[i-1]&&gyroMags[i]>gyroMags[i+1]){
+		// if(gyroMags[i]>gyroMagMean+gyroStanDev)stepCounter++
+		//
+		// }
+		// }
 		return (stepCounter);
 	}
-	
 
 	public static void displayJFrame(Plot2DPanel plot) {
 		JFrame frame = new JFrame("Results");
