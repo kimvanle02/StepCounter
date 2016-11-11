@@ -113,7 +113,17 @@ public class CountStepsBlank {
 		return totalSum;
 	}
 
-	// peak must dip certain amount
+	/***
+	 * Counts the number of steps based on sensor data.
+	 * 
+	 * @param times
+	 *            a 1d-array with the elapsed times in miliseconds for each row
+	 *            in the sensorData array.
+	 * @param accelData
+	 *            a 2d-array where rows represent successive sensor data
+	 *            samples, and the columns represent x-, y-, and z- accelerations.
+	 * @return an int representing the number of steps
+	 */
 	public static int countStepsImproved1(double[] times, double[][] accelData) {
 		double[] accelMags = calculateMagnitudesFor(accelData);
 
@@ -145,7 +155,17 @@ public class CountStepsBlank {
 		return stepCounter;
 	}
 
-	// calculate magnitude difference bw peaks and troughs
+	/***
+	 * Counts the number of steps based on sensor data.
+	 * 
+	 * @param times
+	 *            a 1d-array with the elapsed times in miliseconds for each row
+	 *            in the sensorData array.
+	 * @param accelData
+	 *            a 2d-array where rows represent successive sensor data
+	 *            samples, and the columns represent x-, y-, and z- accelerations.
+	 * @return an int representing the number of steps
+	 */
 	public static int countStepsImproved2(double[] times, double[][] accelData) {
 		double[] accelMags = calculateMagnitudesFor(accelData);
 
@@ -171,16 +191,28 @@ public class CountStepsBlank {
 		return stepCounter;
 	}
 
-	// adaptive threshold
+	/***
+	 * Counts the number of steps based on sensor data.
+	 * 
+	 * @param times
+	 *            a 1d-array with the elapsed times in miliseconds for each row
+	 *            in the sensorData array.
+	 * @param accelData
+	 *            a 2d-array where rows represent successive sensor data
+	 *            samples, and the columns represent x-, y-, and z- accelerations.
+	 * @return an int representing the number of steps
+	 */
 	public static int countStepsImproved3(double[] times, double[][] sensorData) {
 		double[] accelMags = calculateMagnitudesFor(sensorData);
+		int thresholdWindow = 1000;
+		int stepSpacing = 25;
 
 		int stepCounter = 0;
 		double[] accelMagsSmooth = new double[accelMags.length / 3];
 		for (int i = 1; i < accelMags.length - 1; i++) {
 
-			int start = i - 1000;
-			int end = i + 1000;
+			int start = i - thresholdWindow;
+			int end = i + thresholdWindow;
 			if (start < 0)
 				start = 0;
 			if (end > accelMags.length)
@@ -196,7 +228,7 @@ public class CountStepsBlank {
 				if (accelMags[i] > accelMagMean + accelStanDev * 0.4)
 
 					stepCounter++;
-				i += 25;
+				i += stepSpacing;
 
 			}
 		}
